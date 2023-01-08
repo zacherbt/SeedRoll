@@ -67,16 +67,15 @@ public class SeedRoll extends ListenerAdapter {
             if (database.noPlayerLeft()) {
                 event.reply("No players remain to be assigned a game").queue();
             } else {
-                InteractionHook hook = event.getHook();
-                event.reply("Players Selected for this game are:").queue();
+                String returnString = "Players selected for this game are: \n";
                 int numPlayers = event.getOption("number").getAsInt();
                 if (numPlayers >= database.size()) {
                     int size = database.size();
-                    sendPlayers(hook, size);
+                    returnString += sendPlayers(size);
                 } else {
-                    sendPlayers(hook, numPlayers);
+                    returnString += sendPlayers(numPlayers);
                 }
-                hook.sendMessage("Enjoy the Game!").queue();
+                event.reply(returnString + "Enjoy the Game!").queue();
             }
         }
         if (event.getName().equals("passtime")) {
@@ -85,15 +84,17 @@ public class SeedRoll extends ListenerAdapter {
         }
     }
 
-    public void sendPlayers(InteractionHook hook, int size) {
+    public String sendPlayers(int size) {
+        String returnString = "";
         for (int i = 0; i < size; i++) {
             String userID = database.selectPlayer();
             User user = jda.getUserById(userID);
             if (user != null) {
-                hook.sendMessage(user.getName()).queue();
+                returnString += user.getName() + "\n";
             } else {
-                hook.sendMessage("Invalid user ID: " + userID).queue();
+                returnString += ("Invalid user ID: " + userID + "\n");
             }
         }
+        return returnString;
     }
 }
