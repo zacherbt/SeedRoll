@@ -9,9 +9,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -36,7 +34,8 @@ public class SeedRoll extends ListenerAdapter {
                 Commands.slash("passtime", "Use after a meeting to reset and set new priorities"),
                 Commands.message("Log Reactions"),
                 Commands.slash("selectplayers", "Selects x players to be assigned to a DnD session")
-                        .addOption(OptionType.INTEGER, "number", "The number of players to select")
+                        .addOption(OptionType.INTEGER, "number", "The number of players to select"),
+                Commands.slash("printdatabase", "Prints all members and their respective priority into the terminal")
         ).queue();
     }
 
@@ -82,13 +81,18 @@ public class SeedRoll extends ListenerAdapter {
             database.progressTime();
             event.reply("Players reset and priorities updated!").queue();
         }
+        if (event.getName().equals("printdatabase")) {
+            database.printDatabase();
+            event.reply("Database logged to terminal").setEphemeral(true).queue();
+        }
     }
 
     public String sendPlayers(int size) {
         String returnString = "";
+        User user = null;
         for (int i = 0; i < size; i++) {
             String userID = database.selectPlayer();
-            User user = jda.getUserById(userID);
+            user = jda.retrieveUserById(userID).complete();
             if (user != null) {
                 returnString += user.getName() + "\n";
             } else {

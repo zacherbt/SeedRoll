@@ -2,6 +2,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.pagination.ReactionPaginationAction;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -24,19 +25,28 @@ public class Database {
         String userID = "";
         for(User ID : players) {
             userID = ID.getId();
-            if (!database.contains(userID)) {
+            if (!this.contains(userID)) {
                 Rollplayer currPlayer = new Rollplayer(userID, true);
                 database.add(currPlayer);
                 playingThisWeek.add(currPlayer);
             } else {
                 for (Rollplayer currPlayer : database)  {
-                    if (currPlayer.getID() == userID) {
+                    if (Objects.equals(currPlayer.getID(), userID)) {
                         currPlayer.setParticipation(true);
                         playingThisWeek.add(currPlayer);
                     }
                 }
             }
         }
+    }
+
+    public boolean contains(String userID) {
+        for (Rollplayer player : database) {
+            if (Objects.equals(player.getID(), userID)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void progressTime() {
@@ -55,6 +65,7 @@ public class Database {
         for (Rollplayer player : database) {
             System.out.println(player.getID() + ", " + player.getPriority());
         }
+        System.out.println();
     }
 
     public int size() {
